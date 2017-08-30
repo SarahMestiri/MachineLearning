@@ -4,6 +4,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import MultinomialNB, GaussianNB, BernoulliNB
 from sklearn.svm import SVC, NuSVC, LinearSVC
 from sklearn.metrics import confusion_matrix, classification_report
+from sklearn.model_selection import GridSearchCV
 import numpy as np
 def make_Dictionary(train_dir):
     emails = [os.path.join(train_dir, f) for f in os.listdir(train_dir)]
@@ -23,12 +24,12 @@ def make_Dictionary(train_dir):
             del dictionary[item]
         elif len(item) == 1:
             del dictionary[item]
-    dictionary = dictionary.most_common(5000)
+    dictionary = dictionary.most_common(500)
     return dictionary
 
 def extract_features(mail_dir):
     files = [os.path.join(mail_dir,fi) for fi in os.listdir(mail_dir)]
-    features_matrix = np.zeros((len(files),5000))
+    features_matrix = np.zeros((len(files),500))
     docID = 0;
     for fil in files:
       with open(fil) as fi:
@@ -52,17 +53,25 @@ train_labels[351:701] = 1 #spam emails
 train_matrix = extract_features(train_dir)
 
 # Training SVM and Naive bayes classifier
-model1 = MultinomialNB()
-model2 = LinearSVC()
-model1.fit(train_matrix,train_labels)
-model2.fit(train_matrix,train_labels)
+NB_model = MultinomialNB()
+#GNB_model = GaussianNB()
+BNB_model = BernoulliNB()
+#SVM_model = LinearSVC()
+NB_model.fit(train_matrix,train_labels)
+#GNB_model.fit(train_matrix,train_labels)
+BNB_model.fit(train_matrix,train_labels)
+#SVM_model.fit(train_matrix,train_labels)
 
 # Test the unseen mails for Spam
 test_dir = 'ling-spam\\test-mails'
 test_matrix = extract_features(test_dir)
 test_labels = np.zeros(260)
 test_labels[130:260] = 1 #spam emails
-result1 = model1.predict(test_matrix)
-result2 = model2.predict(test_matrix)
-print(confusion_matrix(test_labels,result1))
-print(confusion_matrix(test_labels,result2))
+NB_predictions = NB_model.predict(test_matrix)
+#GNB_predictions = GNB_model.predict(test_matrix)
+BNB_predictions = BNB_model.predict(test_matrix)
+#SVM_predictions = SVM_model.predict(test_matrix)
+print(confusion_matrix(test_labels,NB_predictions))
+#print(confusion_matrix(test_labels,SVM_predictions))
+#print(confusion_matrix(test_labels,GNB_predictions))
+print(confusion_matrix(test_labels,BNB_predictions))
